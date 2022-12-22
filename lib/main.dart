@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import 'package:drift_platforms/database/database.dart';
 import 'package:drift_platforms/database/executor/executor.dart';
 import 'package:flutter/material.dart';
@@ -36,16 +37,18 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Stream<List<User>> _users() => db.select(db.users).watch();
-
+  late final Stream<List<User>> _users;
   late final TextEditingController _nameController;
   late final TextEditingController _passwordController;
+  late final TextEditingController _emailController;
 
   @override
   void initState() {
     super.initState();
+    _users = db.select(db.users).watch();
     _nameController = TextEditingController();
     _passwordController = TextEditingController();
+    _emailController = TextEditingController();
   }
 
   @override
@@ -72,6 +75,12 @@ class _HomeState extends State<Home> {
                     hintText: 'Password',
                   ),
                 ),
+                TextField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(
+                    hintText: 'Email',
+                  ),
+                ),
                 const Padding(padding: EdgeInsets.only(top: 20)),
                 ElevatedButton(
                   onPressed: () async {
@@ -79,6 +88,7 @@ class _HomeState extends State<Home> {
                           UsersCompanion.insert(
                             name: _nameController.text,
                             password: _passwordController.text,
+                            email: Value(_emailController.text),
                           ),
                         );
                     _nameController.clear();
@@ -90,7 +100,7 @@ class _HomeState extends State<Home> {
             )),
             const SliverPadding(padding: EdgeInsets.only(top: 20)),
             StreamBuilder<List<User>>(
-              stream: _users(),
+              stream: _users,
               builder: (context, snapshot) {
                 final data = snapshot.data;
                 if (data != null && data.isNotEmpty) {
